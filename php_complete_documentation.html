@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHP Master - Interactive Learning Platform</title>
+
+<style>
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #ec4899;
+    --accent: #14b8a6;
+    --bg-dark: #0f172a;
+    --bg-darker: #020617;
+    --surface: #1e293b;
+    --surface-light: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border: #475569;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, var(--bg-darker) 0%, #1a1f35 50%, var(--bg-dark) 100%);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .nav-spacer { flex: 1; }
+
+  .search-box {
+    width: 300px;
+    padding: 10px 16px;
+    background: rgba(51, 65, 85, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    color: var(--text-secondary);
+    transition: all 0.3s;
+  }
+
+  .search-box:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(51, 65, 85, 0.8);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    display: flex;
+    margin-top: 70px;
+    min-height: calc(100vh - 70px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border-right: 1px solid var(--border);
+    padding: 30px 0;
+    overflow-y: auto;
+    position: fixed;
+    left: 0;
+    top: 70px;
+    height: calc(100vh - 70px);
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+  }
+
+  .nav-group {
+    margin-bottom: 28px;
+    padding: 0 16px;
+  }
+
+  .nav-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-group-icon {
+    width: 16px;
+    height: 16px;
+    background: var(--primary);
+    border-radius: 3px;
+  }
+
+  .nav-item {
+    padding: 11px 14px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-left: 3px solid transparent;
+    display: block;
+    background: rgba(0, 0, 0, 0);
+  }
+
+  .nav-item:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--text-primary);
+    border-left-color: var(--primary);
+    transform: translateX(6px);
+  }
+
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.05));
+    color: var(--primary);
+    border-left-color: var(--primary);
+    box-shadow: inset -3px 0 12px rgba(99, 102, 241, 0.2);
+  }
+
+  /* CONTENT */
+  .content-wrapper {
+    margin-left: 280px;
+    flex: 1;
+    padding: 50px 60px;
+    max-width: 1100px;
+  }
+
+  /* HERO SECTION */
+  .hero {
+    margin-bottom: 60px;
+    animation: slideInDown 0.8s ease-out;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(20, 184, 166, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-title {
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .hero-description {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 700px;
+  }
+
+  /* CARDS */
+  .card {
+    background: linear-gradient(135deg, rgba(51, 65, 85, 0.5), rgba(30, 41, 59, 0.5));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .card:hover {
+    background: linear-gradient(135deg, rgba(51, 65, 85, 0.7), rgba(30, 41, 59, 0.7));
+    border-color: var(--primary);
+    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
+    transform: translateY(-8px);
+  }
+
+  h1 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 40px 0 20px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 24px 0 12px;
+    color: var(--text-primary);
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  strong { color: var(--text-primary); font-weight: 600; }
+
+  /* CODE */
+  code {
+    font-family: 'Monaco', 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  pre {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(20, 24, 40, 0.8));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 20px 0;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 20px 60px rgba(0, 0, 0, 0.4);
+    position: relative;
+    animation: slideUp 0.6s ease-out;
+  }
+
+  pre::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  pre:hover {
+    border-color: var(--primary);
+    box-shadow: inset 0 0 30px rgba(99, 102, 241, 0.1), 0 20px 80px rgba(99, 102, 241, 0.2);
+  }
+
+  /* FLOW */
+  .flow-diagram {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(20, 184, 166, 0.05));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .flow-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 12px 0;
+    animation: slideInLeft 0.6s ease-out;
+  }
+
+  .flow-dot {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    transition: all 0.3s;
+  }
+
+  .flow-dot:hover {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6);
+  }
+
+  .flow-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .flow-arrow {
+    font-size: 24px;
+    color: var(--primary);
+    text-align: center;
+    margin: 8px 0;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+  }
+
+  thead {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), rgba(20, 184, 166, 0.1));
+    border-bottom: 2px solid var(--primary);
+  }
+
+  th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tr {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.25s;
+  }
+
+  tr:hover {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  td {
+    padding: 14px 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    border-right: 1px solid rgba(99, 102, 241, 0.2);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .callout-warn {
+    border-left-color: var(--secondary);
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.05));
+    border-top-color: rgba(236, 72, 153, 0.2);
+    border-right-color: rgba(236, 72, 153, 0.2);
+    border-bottom-color: rgba(236, 72, 153, 0.2);
+  }
+
+  .callout-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    margin-right: 12px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+
+  .callout-warn .callout-icon {
+    background: var(--secondary);
+  }
+
+  /* GRID */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 24px 0;
+  }
+
+  .feature-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(20, 184, 166, 0.05));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.35s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(20, 184, 166, 0.1));
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
+  }
+
+  .feature-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* SECTIONS */
+  .section {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .section.active {
+    display: block;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .sidebar { width: 240px; }
+    .content-wrapper { margin-left: 240px; padding: 40px 40px; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: absolute;
+      left: -280px;
+      width: 280px;
+      transition: left 0.3s;
+    }
+    .content-wrapper {
+      margin-left: 0;
+      padding: 30px 24px;
+    }
+    .hero-title { font-size: 32px; }
+    h1 { font-size: 28px; }
+  }
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    PHP Master
+  </div>
+  <div class="nav-spacer"></div>
+  <input type="text" class="search-box" placeholder="Search topics...">
+</header>
+
+<!-- MAIN -->
+<div class="container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-group">
+      <div class="nav-group-title">
+        <span class="nav-group-icon"></span>
+        Foundations
+      </div>
+      <a class="nav-item active" onclick="show('intro')">🎯 What is PHP?</a>
+      <a class="nav-item" onclick="show('install')">💾 Installation</a>
+      <a class="nav-item" onclick="show('editor')">✏️ Text Editor</a>
+      <a class="nav-item" onclick="show('hello')">👋 Hello World</a>
+      <a class="nav-item" onclick="show('html')">🏗️ HTML + PHP</a>
+      <a class="nav-item" onclick="show('vars')">📦 Variables</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">
+        <span class="nav-group-icon"></span>
+        Core Concepts
+      </div>
+      <a class="nav-item" onclick="show('url')">🔗 URL Parameters</a>
+      <a class="nav-item" onclick="show('postget')">📨 POST vs GET</a>
+      <a class="nav-item" onclick="show('arrays')">📊 Arrays</a>
+      <a class="nav-item" onclick="show('checkbox')">☑️ Checkboxes</a>
+      <a class="nav-item" onclick="show('assoc')">🔑 Assoc Arrays</a>
+      <a class="nav-item" onclick="show('funcs')">⚙️ Functions</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">
+        <span class="nav-group-icon"></span>
+        Logic & Loops
+      </div>
+      <a class="nav-item" onclick="show('return')">↩️ Return</a>
+      <a class="nav-item" onclick="show('if')">❓ If Statements</a>
+      <a class="nav-item" onclick="show('calc')">🧮 Calculator</a>
+      <a class="nav-item" onclick="show('switch')">🔀 Switch</a>
+      <a class="nav-item" onclick="show('while')">🔄 While Loops</a>
+      <a class="nav-item" onclick="show('for')">📈 For Loops</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">
+        <span class="nav-group-icon"></span>
+        OOP & Advanced
+      </div>
+      <a class="nav-item" onclick="show('comments')">💬 Comments</a>
+      <a class="nav-item" onclick="show('include')">📁 Include/Require</a>
+      <a class="nav-item" onclick="show('classes')">🏛️ Classes</a>
+      <a class="nav-item" onclick="show('construct')">🔨 Constructors</a>
+      <a class="nav-item" onclick="show('methods')">🎯 Methods</a>
+      <a class="nav-item" onclick="show('getset')">🔐 Getters/Setters</a>
+      <a class="nav-item" onclick="show('inherit')">🧬 Inheritance</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content-wrapper">
+
+    <!-- INTRO -->
+    <section class="section active" id="intro">
+      <div class="hero">
+        <span class="hero-badge">⚡ Topic 1</span>
+        <h1>What is PHP?</h1>
+        <p class="hero-description">Discover the server-side scripting language that powers over 77% of the web. PHP transforms static HTML into dynamic, interactive experiences.</p>
+      </div>
+
+      <div class="card">
+        <h3>🚀 The PHP Advantage</h3>
+        <p>PHP is a <strong>server-side scripting language</strong> that generates dynamic content before sending it to the browser. Unlike static HTML, PHP can:</p>
+        <ul style="margin: 16px 0 0 20px; color: var(--text-secondary);">
+          <li style="margin-bottom: 8px;">Respond to different users with personalized content</li>
+          <li style="margin-bottom: 8px;">Connect to databases and retrieve real-time data</li>
+          <li style="margin-bottom: 8px;">Process form submissions securely on the server</li>
+          <li style="margin-bottom: 8px;">Create sessions and manage user authentication</li>
+        </ul>
+      </div>
+
+      <div class="flow-diagram">
+        <h3>How PHP Works</h3>
+        <div class="flow">
+          <div class="flow-item">
+            <div class="flow-dot">1</div>
+            <div class="flow-text">User visits <code>localhost/index.php</code> in their browser</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">2</div>
+            <div class="flow-text">Request reaches the Apache web server</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">3</div>
+            <div class="flow-text">PHP engine processes the .php file and executes PHP code</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">4</div>
+            <div class="flow-text">Pure HTML is generated and sent back to the browser</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        💡 <strong>Pro Tip:</strong> The browser never sees PHP code — it only receives the final HTML output. This is what makes PHP secure for backend logic.
+      </div>
+
+      <div class="card" style="margin-top: 28px;">
+        <h3>📝 Basic PHP Syntax</h3>
+        <pre><code>&lt;?php
+  echo "Hello, World!";
+?&gt;</code></pre>
+      </div>
+
+      <div class="card" style="margin-top: 28px;">
+        <h3>💎 Why PHP Dominates the Web</h3>
+        <div class="grid-2">
+          <div class="feature-card">
+            <h4>🆓 Free & Open Source</h4>
+            <p>No licensing costs. Install on any server. Access to entire source code.</p>
+          </div>
+          <div class="feature-card">
+            <h4>🛢️ Database Integration</h4>
+            <p>Seamless support for MySQL, PostgreSQL, Oracle, MongoDB and more.</p>
+          </div>
+          <div class="feature-card">
+            <h4>👥 Massive Community</h4>
+            <p>Millions of developers, endless libraries, frameworks, and resources.</p>
+          </div>
+          <div class="feature-card">
+            <h4>🌐 Powers the Web</h4>
+            <p>Facebook, WordPress, Wikipedia, Slack, and 77% of all websites use PHP.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section class="section" id="install">
+      <div class="hero">
+        <span class="hero-badge">💾 Topic 2</span>
+        <h1>Installation & XAMPP</h1>
+        <p class="hero-description">Get your local development environment up and running in minutes.</p>
+      </div>
+
+      <div class="card">
+        <h3>Why XAMPP?</h3>
+        <p>PHP cannot run standalone. You need three components working together:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Purpose</th>
+              <th>What It Does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Apache</strong></td>
+              <td>Web Server</td>
+              <td>Receives requests and serves files to browsers</td>
+            </tr>
+            <tr>
+              <td><strong>PHP</strong></td>
+              <td>Interpreter</td>
+              <td>Executes PHP code on the server</td>
+            </tr>
+            <tr>
+              <td><strong>MySQL</strong></td>
+              <td>Database</td>
+              <td>Stores and manages data persistently</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>📂 Project Structure</h3>
+        <pre><code>xampp/
+ └── htdocs/              ← All your projects go here
+      ├── project1/
+      │    └── index.php
+      └── project2/
+           └── index.php</code></pre>
+        <p style="margin-top: 16px;"><strong>Access in browser:</strong> <code>localhost/project1</code></p>
+      </div>
+
+      <div class="callout callout-warn">
+        ⚠️ <strong>Common Mistake:</strong> Never place your PHP files on the Desktop or Documents. They MUST be inside the <code>htdocs</code> folder or PHP won't execute them.
+      </div>
+    </section>
+
+    <!-- EDITOR -->
+    <section class="section" id="editor">
+      <div class="hero">
+        <span class="hero-badge">✏️ Topic 3</span>
+        <h1>Text Editor Setup</h1>
+        <p class="hero-description">Choose the right tools to write beautiful, error-free code.</p>
+      </div>
+
+      <div class="card">
+        <h3>🚀 VS Code Superpowers</h3>
+        <div class="grid-2">
+          <div class="feature-card">
+            <h4>🎨 Syntax Highlighting</h4>
+            <p>Variables, strings, and keywords appear in different colors for easier reading.</p>
+          </div>
+          <div class="feature-card">
+            <h4>⚡ Auto Completion</h4>
+            <p>Start typing and get intelligent suggestions for functions and variables.</p>
+          </div>
+          <div class="feature-card">
+            <h4>🐛 Error Detection</h4>
+            <p>Missing quotes or brackets are caught before you even run the file.</p>
+          </div>
+          <div class="feature-card">
+            <h4>🔧 Extensions</h4>
+            <p>Install PHP Intelephense for deep language support and debugging.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HELLO WORLD -->
+    <section class="section" id="hello">
+      <div class="hero">
+        <span class="hero-badge">👋 Topic 4</span>
+        <h1>Your First PHP Program</h1>
+        <p class="hero-description">Write and run your first PHP code. This is where the magic begins.</p>
+      </div>
+
+      <div class="card">
+        <h3>💻 Simplest Possible Program</h3>
+        <pre><code>&lt;?php
+echo "Hello World";
+?&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>🔗 Concatenating Output</h3>
+        <pre><code>&lt;?php
+echo "John";
+echo " ";
+echo "Doe";
+// Output: John Doe
+?&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>💬 Comments in PHP</h3>
+        <pre><code>// This is a single-line comment
+
+/*
+   This is a multi-line comment
+   that spans multiple lines
+*/
+
+echo "This runs"; // Inline comment</code></pre>
+      </div>
+
+      <div class="callout">
+        ⚠️ <strong>Remember:</strong> Every PHP statement must end with a semicolon <code>;</code>. Forgetting it causes parse errors.
+      </div>
+    </section>
+
+    <!-- HTML IN PHP -->
+    <section class="section" id="html">
+      <div class="hero">
+        <span class="hero-badge">🏗️ Topic 5</span>
+        <h1>Mixing HTML and PHP</h1>
+        <p class="hero-description">Learn how HTML provides structure while PHP adds dynamic behavior.</p>
+      </div>
+
+      <div class="card">
+        <h3>🎭 The Perfect Duo</h3>
+        <pre><code>&lt;html&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome!&lt;/h1&gt;
+  &lt;?php
+    echo "This message was generated by PHP";
+  ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Inline PHP in HTML</h3>
+        <pre><code>&lt;h1&gt;&lt;?php echo "Welcome"; ?&gt;&lt;/h1&gt;
+// Renders as: &lt;h1&gt;Welcome&lt;/h1&gt;</code></pre>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>HTML</th>
+            <th>PHP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Static:</strong> Always shows the same content</td>
+            <td><strong>Dynamic:</strong> Changes based on data and logic</td>
+          </tr>
+          <tr>
+            <td><code>&lt;h1&gt;Hello&lt;/h1&gt;</code></td>
+            <td><code>&lt;?php echo $greeting; ?&gt;</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- VARIABLES -->
+    <section class="section" id="vars">
+      <div class="hero">
+        <span class="hero-badge">📦 Topic 6</span>
+        <h1>Understanding Variables</h1>
+        <p class="hero-description">Variables are containers that store and manage data in your programs.</p>
+      </div>
+
+      <div class="card">
+        <h3>What is a Variable?</h3>
+        <p>Think of a variable as a labeled box. You put something inside it, give it a name, and retrieve it later. In PHP, all variables start with a <code>$</code> sign.</p>
+      </div>
+
+      <div class="card">
+        <h3>💾 Creating and Using Variables</h3>
+        <pre><code>&lt;?php
+$name = "John";
+$age = 20;
+$cgpa = 8.5;
+$isStudent = true;
+
+echo $name;    // Output: John
+echo $age;     // Output: 20
+?&gt;</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>📋 Variable Rules</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Valid</th>
+              <th>Invalid</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>$name</code></td>
+              <td><code>$1name</code></td>
+              <td>Cannot start with a number</td>
+            </tr>
+            <tr>
+              <td><code>$_name</code></td>
+              <td><code>$name%</code></td>
+              <td>No special characters except underscore</td>
+            </tr>
+            <tr>
+              <td><code>$name1</code></td>
+              <td><code>name</code></td>
+              <td>Must start with $</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        ⚠️ <strong>Case Sensitive:</strong> <code>$name</code> and <code>$Name</code> are different variables in PHP.
+      </div>
+
+      <div class="card">
+        <h3>🔄 Changing Variables</h3>
+        <pre><code>&lt;?php
+$name = "John";
+echo $name;      // Output: John
+
+$name = "Mike";
+echo $name;      // Output: Mike
+?&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- MORE SECTIONS (Abbreviated for space) -->
+    <section class="section" id="url">
+      <div class="hero">
+        <span class="hero-badge">🔗 Topic 13</span>
+        <h1>URL Parameters</h1>
+        <p class="hero-description">Pass data through URLs using query strings.</p>
+      </div>
+      <div class="card">
+        <p>URL parameters use the <code>?key=value</code> syntax to pass data:</p>
+        <pre><code>http://localhost/test.php?name=John&age=20&city=NYC</code></pre>
+        <h3>Accessing Parameters in PHP</h3>
+        <pre><code>&lt;?php
+echo $_GET["name"];    // John
+echo $_GET["age"];     // 20
+echo $_GET["city"];    // NYC
+?&gt;</code></pre>
+        <div class="callout">Always use <code>$_GET["key"]</code> with quotes around the key name, not <code>$_GET[key]</code>.</div>
+      </div>
+    </section>
+
+    <section class="section" id="postget">
+      <div class="hero">
+        <span class="hero-badge">📨 Topic 14</span>
+        <h1>POST vs GET</h1>
+        <p class="hero-description">Learn when to use each HTTP method for different situations.</p>
+      </div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr><th>Feature</th><th>GET</th><th>POST</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Visible in URL?</td><td>✅ Yes</td><td>❌ No</td></tr>
+            <tr><td>Security</td><td>⚠️ Less Secure</td><td>🔐 More Secure</td></tr>
+            <tr><td>For Passwords?</td><td>❌ Never</td><td>✅ Always</td></tr>
+            <tr><td>Data Size</td><td>Limited (~2KB)</td><td>Large</td></tr>
+            <tr><td>Bookmarkable</td><td>✅ Yes</td><td>❌ No</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        💡 Use GET for searches and public data. Use POST for login, registration, and sensitive information.
+      </div>
+    </section>
+
+    <section class="section" id="arrays">
+      <div class="hero">
+        <span class="hero-badge">📊 Topic 15</span>
+        <h1>Arrays Explained</h1>
+        <p class="hero-description">Store multiple values in a single variable with arrays.</p>
+      </div>
+      <div class="card">
+        <h3>Creating Arrays</h3>
+        <pre><code>&lt;?php
+$friends = array("John", "Mike", "Tom", "Sara");
+//           [0]      [1]      [2]    [3]
+
+echo $friends[0];  // John
+echo $friends[2];  // Tom
+?&gt;</code></pre>
+      </div>
+      <div class="card">
+        <h3>Modifying Arrays</h3>
+        <pre><code>&lt;?php
+$friends[1] = "David";    // Replace Mike
+$friends[4] = "Chris";    // Add new element
+count($friends);          // Returns 5
+?&gt;</code></pre>
+      </div>
+      <div class="callout callout-warn">
+        ⚠️ Array indexes start at 0, not 1. Accessing <code>$friends[99]</code> produces a warning if it doesn't exist.
+      </div>
+    </section>
+
+    <section class="section" id="checkbox">
+      <div class="hero">
+        <span class="hero-badge">☑️ Topic 16</span>
+        <h1>Handling Checkboxes</h1>
+        <p class="hero-description">Process multiple checkbox selections from HTML forms.</p>
+      </div>
+      <div class="card">
+        <h3>HTML Form with Multiple Checkboxes</h3>
+        <pre><code>&lt;form method="post"&gt;
+  &lt;input type="checkbox" name="fruits[]" value="Apple"&gt;
+  &lt;input type="checkbox" name="fruits[]" value="Banana"&gt;
+  &lt;input type="checkbox" name="fruits[]" value="Mango"&gt;
+  &lt;input type="submit"&gt;
+&lt;/form&gt;</code></pre>
+        <h3>PHP Processing</h3>
+        <pre><code>&lt;?php
+if(isset($_POST["fruits"])) {
+    $fruits = $_POST["fruits"];
+    print_r($fruits);
+}
+?&gt;</code></pre>
+        <div class="callout">
+          Always wrap with <code>isset()</code> because if no boxes are checked, the key won't exist in <code>$_POST</code>.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assoc">
+      <div class="hero">
+        <span class="hero-badge">🔑 Topic 17</span>
+        <h1>Associative Arrays</h1>
+        <p class="hero-description">Use named keys instead of numbers for more readable code.</p>
+      </div>
+      <div class="card">
+        <h3>Creating Associative Arrays</h3>
+        <pre><code>&lt;?php
+$grades = array(
+    "John" => "A",
+    "Mike" => "B",
+    "Tom" => "C"
+);
+
+echo $grades["John"];   // A
+$grades["John"] = "A+"; // Update
+?&gt;</code></pre>
+      </div>
+      <div class="callout">
+        Use string keys for natural labels. This is much clearer than numeric indexes for data like names, cities, or prices.
+      </div>
+    </section>
+
+    <section class="section" id="funcs">
+      <div class="hero">
+        <span class="hero-badge">⚙️ Topic 18</span>
+        <h1>Functions</h1>
+        <p class="hero-description">Reusable blocks of code that perform specific tasks.</p>
+      </div>
+      <div class="card">
+        <h3>Creating and Calling Functions</h3>
+        <pre><code>&lt;?php
+function greet($name) {
+    echo "Hello, " . $name;
+}
+
+greet("John");   // Hello, John
+greet("Sarah");  // Hello, Sarah
+?&gt;</code></pre>
+      </div>
+      <div class="card">
+        <h3>Variable Scope</h3>
+        <pre><code>&lt;?php
+$x = 10;  // Global variable
+
+function test() {
+    global $x;  // Access the global $x
+    echo $x;    // 10
+}
+
+test();
+?&gt;</code></pre>
+      </div>
+      <div class="callout">
+        Variables inside a function are local by default. Use <code>global</code> keyword to access variables from outside the function.
+      </div>
+    </section>
+
+    <section class="section" id="return">
+      <div class="hero">
+        <span class="hero-badge">↩️ Topic 19</span>
+        <h1>Return Statements</h1>
+        <p class="hero-description">Get values back from functions to use in your code.</p>
+      </div>
+      <div class="card">
+        <h3>Returning Values</h3>
+        <pre><code>&lt;?php
+function square($num) {
+    return $num * $num;
+}
+
+$result = square(5);
+echo $result;  // 25
+?&gt;</code></pre>
+      </div>
+      <div class="callout">
+        <strong>Important:</strong> <code>return</code> immediately ends the function. Any code after it is never executed.
+      </div>
+    </section>
+
+    <section class="section" id="if">
+      <div class="hero">
+        <span class="hero-badge">❓ Topic 20-21</span>
+        <h1>If Statements & Conditions</h1>
+        <p class="hero-description">Make decisions in your code based on conditions.</p>
+      </div>
+      <div class="card">
+        <h3>If / Else / Elseif</h3>
+        <pre><code>&lt;?php
+$marks = 85;
+
+if($marks >= 90) {
+    echo "A";
+} elseif($marks >= 75) {
+    echo "B";
+} else {
+    echo "C";
+}
+?&gt;</code></pre>
+      </div>
+      <div class="card">
+        <h3>Comparison Operators</h3>
+        <table>
+          <thead>
+            <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>==</code></td><td>Equal</td><td><code>$age == 20</code></td></tr>
+            <tr><td><code>!=</code></td><td>Not Equal</td><td><code>$age != 20</code></td></tr>
+            <tr><td><code>&gt;</code></td><td>Greater Than</td><td><code>$marks &gt; 50</code></td></tr>
+            <tr><td><code>&lt;</code></td><td>Less Than</td><td><code>$marks &lt; 50</code></td></tr>
+            <tr><td><code>&gt;=</code></td><td>Greater or Equal</td><td><code>$age &gt;= 18</code></td></tr>
+            <tr><td><code>&lt;=</code></td><td>Less or Equal</td><td><code>$age &lt;= 65</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        ⚠️ <strong>Common Mistake:</strong> Using <code>=</code> (assignment) instead of <code>==</code> (comparison) in conditions.
+      </div>
+    </section>
+
+    <section class="section" id="calc">
+      <div class="hero">
+        <span class="hero-badge">🧮 Topic 22</span>
+        <h1>Building a Calculator</h1>
+        <p class="hero-description">Combine forms, variables, and conditionals into a working calculator.</p>
+      </div>
+      <div class="card">
+        <h3>HTML Form</h3>
+        <pre><code>&lt;form method="get"&gt;
+  &lt;input type="number" name="num1"&gt;
+  &lt;input type="text" name="op" placeholder="+"&gt;
+  &lt;input type="number" name="num2"&gt;
+  &lt;input type="submit" value="Calculate"&gt;
+&lt;/form&gt;</code></pre>
+        <h3>PHP Logic</h3>
+        <pre><code>&lt;?php
+if(isset($_GET["num1"])) {
+    $num1 = $_GET["num1"];
+    $num2 = $_GET["num2"];
+    $op = $_GET["op"];
+    
+    if($op == "+") echo $num1 + $num2;
+    elseif($op == "-") echo $num1 - $num2;
+    elseif($op == "*") echo $num1 * $num2;
+    elseif($op == "/") echo $num1 / $num2;
+}
+?&gt;</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="switch">
+      <div class="hero">
+        <span class="hero-badge">🔀 Topic 23</span>
+        <h1>Switch Statements</h1>
+        <p class="hero-description">A cleaner way to handle many conditions.</p>
+      </div>
+      <div class="card">
+        <h3>Switch vs If/Else</h3>
+        <pre><code>&lt;?php
+$grade = "A";
+
+switch($grade) {
+    case "A":
+        echo "Excellent!";
+        break;
+    case "B":
+        echo "Good!";
+        break;
+    case "C":
+        echo "Average";
+        break;
+    default:
+        echo "Invalid";
+}
+?&gt;</code></pre>
+      </div>
+      <div class="callout callout-warn">
+        ⚠️ Always use <code>break;</code> to prevent "fall-through". Without it, execution continues into the next case.
+      </div>
+    </section>
+
+    <section class="section" id="while">
+      <div class="hero">
+        <span class="hero-badge">🔄 Topic 24</span>
+        <h1>While Loops</h1>
+        <p class="hero-description">Repeat code while a condition is true.</p>
+      </div>
+      <div class="card">
+        <h3>While Loop Syntax</h3>
+        <pre><code>&lt;?php
+$i = 1;
+while($i <= 5) {
+    echo $i;
+    $i++;
+}
+// Output: 12345
+?&gt;</code></pre>
+      </div>
+      <div class="callout callout-warn">
+        ⚠️ <strong>Infinite Loop:</strong> Forgetting to increment <code>$i++</code> creates an infinite loop and crashes your server.
+      </div>
+    </section>
+
+    <section class="section" id="for">
+      <div class="hero">
+        <span class="hero-badge">📈 Topic 25</span>
+        <h1>For Loops</h1>
+        <p class="hero-description">The most powerful and commonly used loop type.</p>
+      </div>
+      <div class="card">
+        <h3>For Loop Syntax</h3>
+        <pre><code>&lt;?php
+for($i = 1; $i <= 5; $i++) {
+    echo $i;
+}
+// Output: 12345
+
+// Multiplication table
+for($i = 1; $i <= 10; $i++) {
+    echo "5 × $i = " . (5 * $i) . "&lt;br&gt;";
+}
+?&gt;</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="comments">
+      <div class="hero">
+        <span class="hero-badge">💬 Topic 26</span>
+        <h1>Code Comments</h1>
+        <p class="hero-description">Write notes in your code for humans, not machines.</p>
+      </div>
+      <div class="card">
+        <h3>Single & Multi-line Comments</h3>
+        <pre><code>// This is a single-line comment
+
+/* This is a
+   multi-line comment
+   spanning multiple lines */
+
+echo "Code"; // Inline comment</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="include">
+      <div class="hero">
+        <span class="hero-badge">📁 Topic 27-28</span>
+        <h1>Include & Require</h1>
+        <p class="hero-description">Reuse code across multiple files.</p>
+      </div>
+      <div class="card">
+        <h3>Include vs Require</h3>
+        <table>
+          <thead>
+            <tr><th></th><th>include</th><th>require</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>File Missing</td><td>Warning (continues)</td><td>Fatal Error (stops)</td></tr>
+            <tr><td>Use For</td><td>Optional content</td><td>Critical files</td></tr>
+          </tbody>
+        </table>
+        <pre><code>&lt;?php
+include "header.html";
+require "config.php";
+?&gt;</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="classes">
+      <div class="hero">
+        <span class="hero-badge">🏛️ Topic 29</span>
+        <h1>Classes & Objects</h1>
+        <p class="hero-description">Introduction to Object-Oriented Programming (OOP).</p>
+      </div>
+      <div class="card">
+        <h3>Defining and Using Classes</h3>
+        <pre><code>&lt;?php
+class Student {
+    public $name;
+    public $age;
+    public $cgpa;
+}
+
+$s1 = new Student();
+$s1->name = "John";
+$s1->age = 20;
+
+echo $s1->name;  // John
+?&gt;</code></pre>
+      </div>
+      <div class="callout">
+        A class is a blueprint. An object is an instance created from that blueprint.
+      </div>
+    </section>
+
+    <section class="section" id="construct">
+      <div class="hero">
+        <span class="hero-badge">🔨 Topic 30</span>
+        <h1>Constructors</h1>
+        <p class="hero-description">Automatic initialization when creating objects.</p>
+      </div>
+      <div class="card">
+        <h3>Constructor Method</h3>
+        <pre><code>&lt;?php
+class Student {
+    public $name;
+    public $age;
+    
+    function __construct($name, $age) {
+        $this->name = $name;
+        $this->age = $age;
+    }
+}
+
+$s1 = new Student("John", 20);
+echo $s1->name;  // John (set automatically)
+?&gt;</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="methods">
+      <div class="hero">
+        <span class="hero-badge">🎯 Topic 31</span>
+        <h1>Object Methods</h1>
+        <p class="hero-description">Functions inside classes that define object behavior.</p>
+      </div>
+      <div class="card">
+        <h3>Creating and Calling Methods</h3>
+        <pre><code>&lt;?php
+class Student {
+    public $name;
+    
+    function greet() {
+        echo "Hello, " . $this->name;
+    }
+}
+
+$s1 = new Student();
+$s1->name = "John";
+$s1->greet();  // Hello, John
+?&gt;</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="getset">
+      <div class="hero">
+        <span class="hero-badge">🔐 Topic 32</span>
+        <h1>Getters & Setters</h1>
+        <p class="hero-description">Control access to object properties with validation.</p>
+      </div>
+      <div class="card">
+        <h3>Protected Properties with Getters/Setters</h3>
+        <pre><code>&lt;?php
+class Student {
+    private $cgpa;
+    
+    function setCgpa($value) {
+        if($value >= 0 && $value <= 10) {
+            $this->cgpa = $value;
+        }
+    }
+    
+    function getCgpa() {
+        return $this->cgpa;
+    }
+}
+
+$s1 = new Student();
+$s1->setCgpa(8.5);    // ✅ Accepted
+$s1->setCgpa(500);    // ❌ Rejected
+?&gt;</code></pre>
+      </div>
+      <div class="callout">
+        This is called <strong>Encapsulation</strong> — protecting internal data and providing controlled access points.
+      </div>
+    </section>
+
+    <section class="section" id="inherit">
+      <div class="hero">
+        <span class="hero-badge">🧬 Topic 33</span>
+        <h1>Inheritance</h1>
+        <p class="hero-description">Reuse code by inheriting from parent classes.</p>
+      </div>
+      <div class="card">
+        <h3>Parent & Child Classes</h3>
+        <pre><code>&lt;?php
+class Person {
+    public $name;
+    public $age;
+}
+
+class Student extends Person {
+    public $cgpa;
+}
+
+$s1 = new Student();
+$s1->name = "John";   // Inherited
+$s1->age = 20;        // Inherited
+$s1->cgpa = 8.5;      // Student-specific
+?&gt;</code></pre>
+      </div>
+
+      <div class="flow-diagram">
+        <h3>OOP Progression</h3>
+        <div class="flow">
+          <div class="flow-item">
+            <div class="flow-dot">1</div>
+            <div class="flow-text">Classes — Define blueprints</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">2</div>
+            <div class="flow-text">Objects — Create instances</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">3</div>
+            <div class="flow-text">Constructors — Initialize data</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">4</div>
+            <div class="flow-text">Methods — Define behaviors</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">5</div>
+            <div class="flow-text">Encapsulation — Protect data</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <div class="flow-dot">6</div>
+            <div class="flow-text">Inheritance — Reuse code</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        Inheritance eliminates code duplication. Fix a bug once in the parent class and all child classes inherit the fix automatically.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function show(id) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(s => {
+      s.style.opacity = '0';
+      setTimeout(() => s.classList.remove('active'), 150);
+    });
+
+    // Remove active from all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+
+    // Show new section
+    setTimeout(() => {
+      const newSection = document.getElementById(id);
+      newSection.classList.add('active');
+      newSection.style.opacity = '0';
+      requestAnimationFrame(() => {
+        newSection.style.opacity = '1';
+      });
+
+      // Set active nav item
+      event.target.classList.add('active');
+
+      // Scroll to top
+      document.querySelector('.content-wrapper').scrollTop = 0;
+    }, 150);
+  }
+
+  // Keyboard navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    let currentIndex = 0;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' && currentIndex < navItems.length - 1) {
+        currentIndex++;
+        navItems[currentIndex].click();
+      } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+        currentIndex--;
+        navItems[currentIndex].click();
+      }
+    });
+
+    navItems.forEach((item, index) => {
+      item.addEventListener('click', () => currentIndex = index);
+    });
+
+    // Search functionality
+    const searchBox = document.querySelector('.search-box');
+    searchBox.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      navItems.forEach(item => {
+        if (item.textContent.toLowerCase().includes(query)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

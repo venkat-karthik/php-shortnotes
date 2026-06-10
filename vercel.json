@@ -1,0 +1,16 @@
+{
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": ".",
+  "public": true,
+  "routes": [
+    {
+      "src": "/index.html",
+      "status": 200
+    },
+    {
+      "src": "/(.*)",
+      "status": 404
+    }
+  ]
+}

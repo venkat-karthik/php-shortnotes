@@ -1,0 +1,21 @@
+{
+  "name": "php-shortnotes",
+  "version": "1.0.0",
+  "description": "Epic PHP Learning Platform with Modern Design and Animations",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "test": "echo \"No tests specified\""
+  },
+  "keywords": [
+    "php",
+    "learning",
+    "tutorial",
+    "interactive"
+  ],
+  "author": "venkat-karthik",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  }
+}
